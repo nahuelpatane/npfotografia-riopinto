@@ -27,7 +27,12 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
     if (error) {
       fetchError = true
     } else {
-      photos = data ?? []
+      const seen = new Set<string>()
+      photos = (data ?? []).filter(p => {
+        if (seen.has(p.cloudinary_public_id)) return false
+        seen.add(p.cloudinary_public_id)
+        return true
+      })
     }
   }
 
