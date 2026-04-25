@@ -1,0 +1,41 @@
+Actúa como un Desarrollador Fullstack Senior experto en React, Next.js y servicios de IA.
+
+Contexto:
+Necesito crear una landing page minimalista para vender fotos de una carrera de ciclismo (6,000+ corredores). El objetivo es que los usuarios encuentren su foto mediante su número de dorsal (BIB number) y coordinen el pago por WhatsApp.
+
+Requerimientos Técnicos:
+
+Frontend: Usa Next.js (App Router) con Tailwind CSS. La estética debe ser deportiva, limpia y "mobile-first".
+
+Almacenamiento: Configura la lógica para usar un bucket de Supabase Storage o Cloudinary (recomienda la mejor opción para manejar gran volumen de imágenes).
+
+Indexación por IA: Necesito un script (Python o Node.js) que procese las fotos locales antes de subirlas. Debe usar una librería de OCR (como Amazon Rekognition, Google Vision API o una solución local como Tesseract/EasyOCR) para detectar el número de corredor en la ropa/bici y renombrar el archivo o guardar la relación en una base de datos de Supabase.
+
+Funcionalidades de la Landing:
+
+Buscador central destacado: "Ingresa tu número de corredor".
+
+Galería de resultados con "watermark" (marca de agua) automática en las miniaturas.
+
+Botón en cada foto: "Comprar esta foto".
+
+Al hacer clic, debe abrir WhatsApp con un mensaje predefinido: "Hola! Quiero comprar la foto [ID_DE_FOTO] del corredor [NUMERO]. ¿Me pasas los datos para la transferencia?".
+
+Simplicidad: No incluyas pasarelas de pago. Todo el flujo de conversión termina en WhatsApp.
+
+Entregables:
+
+Estructura de carpetas del proyecto.
+
+Código del script de procesamiento e indexación de imágenes.
+
+Código del componente de búsqueda y galería.
+
+Instrucciones para configurar las variables de entorno necesarias.
+
+Un par de consejos para tu semana de ejecución:
+El desafío del OCR: En el ciclismo, los números a veces están en el manubrio o de costado. Si la IA no detecta el número en algunas fotos, asegúrate de que el script las mueva a una carpeta llamada /manual o /no_indexadas para que puedas revisarlas rápido.
+
+Alojamiento: No uses Google Drive para el "backend" de la web; es lento para consultas masivas. Cloudinary es excelente porque te permite aplicar la marca de agua (watermark) dinámicamente solo cambiando la URL de la imagen, lo cual te ahorrará horas de edición.
+
+Captura: Intentá configurar tu cámara en una calidad media-alta pero no máxima (RAW + JPEG liviano) para que el procesamiento de la IA sea más veloz al llegar a tu casa.

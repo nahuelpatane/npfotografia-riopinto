@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# env files — NEVER subir claves al repo
+.env
+.env.local
+.env*.local
+
+# fotos — se gestionan localmente con el script
+fotos_originales/
+output/
+
+# misc
+.claude/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
