@@ -107,11 +107,17 @@ def extract_bibs(reader: easyocr.Reader, image_path: str) -> list[int]:
 # ---------------------------------------------------------------------------
 # Cloudinary & Supabase helpers
 # ---------------------------------------------------------------------------
-def upload(image_path: str) -> str:
-    """Upload to Cloudinary and return the public_id."""
+def upload(image_path: str, stem: str) -> str:
+    """Upload to Cloudinary and return the public_id.
+
+    Using a deterministic public_id (folder/filename-stem) means re-running the
+    script overwrites the same Cloudinary asset instead of creating a new one.
+    """
+    public_id = f"{CLOUDINARY_FOLDER}/{stem}"
     result = cloudinary.uploader.upload(
         image_path,
-        folder=CLOUDINARY_FOLDER,
+        public_id=public_id,
+        overwrite=True,
         resource_type="image",
         quality="auto",
         fetch_format="auto",
@@ -120,12 +126,13 @@ def upload(image_path: str) -> str:
 
 
 def insert_record(bib: int, public_id: str, filename: str) -> None:
-    supabase.table("photos").insert({
+    # upsert instead of insert: re-running the script won't create duplicates
+    supabase.table("photos").upsert({
         "bib_number": bib,
         "cloudinary_public_id": public_id,
         "race_name": RACE_NAME,
         "original_filename": filename,
-    }).execute()
+    }, on_conflict="bib_number,cloudinary_public_id").execute()
 
 
 # ---------------------------------------------------------------------------
@@ -164,7 +171,7 @@ def process(input_dir: Path, output_base: Path) -> None:
                 manual += 1
                 continue
 
-            public_id = upload(str(img))
+            public_id = upload(str(img), img.stem)
             for bib in bibs:
                 insert_record(bib, public_id, img.name)
 

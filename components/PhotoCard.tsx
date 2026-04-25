@@ -62,18 +62,24 @@ export default function PhotoCard({ photo, bibNumber }: PhotoCardProps) {
         </div>
 
         {/* Card footer */}
-        <div className="px-4 py-3 flex items-center justify-between">
+        <div className="px-4 py-3 flex flex-col gap-2">
           <span className="text-xs text-gray-600 truncate">{photo.race_name}</span>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs font-bold text-[#25D366] hover:text-[#1fba59] transition-colors"
-            aria-label={`Comprar foto del corredor #${bibNumber}`}
-          >
-            <WhatsAppIcon className="w-3.5 h-3.5" />
-            Comprar
-          </a>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-bold text-white">$5.000 ARS</span>
+              <span className="text-[11px] text-yellow-400/80">2 fotos por $8.000</span>
+            </div>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs font-bold text-[#25D366] hover:text-[#1fba59] transition-colors"
+              aria-label={`Comprar foto del corredor #${bibNumber}`}
+            >
+              <WhatsAppIcon className="w-3.5 h-3.5" />
+              Comprar
+            </a>
+          </div>
         </div>
       </article>
 
@@ -115,7 +121,11 @@ export default function PhotoCard({ photo, bibNumber }: PhotoCardProps) {
             </div>
 
             {/* Buy CTA */}
-            <div className="mt-5 flex justify-center">
+            <div className="mt-5 flex flex-col items-center gap-2">
+              <div className="flex items-center gap-4 text-center">
+                <span className="text-white font-bold text-lg">$5.000 ARS</span>
+                <span className="text-yellow-400 text-sm">· 2 fotos por $8.000</span>
+              </div>
               <a
                 href={whatsappUrl}
                 target="_blank"

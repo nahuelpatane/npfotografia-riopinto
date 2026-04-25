@@ -12,6 +12,10 @@ create table if not exists photos (
 -- Index for fast BIB lookups
 create index if not exists idx_photos_bib_number on photos (bib_number);
 
+-- Prevents duplicate rows for the same photo+bib (also required for upsert on_conflict)
+create unique index if not exists idx_photos_bib_public_id_unique
+  on photos (bib_number, cloudinary_public_id);
+
 -- Enable Row Level Security (read-only for anonymous users)
 alter table photos enable row level security;
 

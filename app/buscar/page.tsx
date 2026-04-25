@@ -27,10 +27,13 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
     if (error) {
       fetchError = true
     } else {
+      // Deduplicate by original_filename first (catches re-uploaded copies with different
+      // cloudinary_public_id), then fall back to cloudinary_public_id.
       const seen = new Set<string>()
       photos = (data ?? []).filter(p => {
-        if (seen.has(p.cloudinary_public_id)) return false
-        seen.add(p.cloudinary_public_id)
+        const key = p.original_filename ?? p.cloudinary_public_id
+        if (seen.has(key)) return false
+        seen.add(key)
         return true
       })
     }
