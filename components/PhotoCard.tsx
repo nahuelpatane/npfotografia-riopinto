@@ -7,8 +7,8 @@ import type { Photo } from '@/types'
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ''
 
-function buildWhatsAppUrl(photoId: string, bibNumber: number): string {
-  const message = `Hola! Quiero comprar la foto ${photoId} del corredor ${bibNumber}. ¿Me pasás los datos para la transferencia?`
+function buildWhatsAppUrl(photoName: string, bibNumber: number): string {
+  const message = `Hola! Quiero comprar la foto *${photoName}* del corredor *#${bibNumber}*. El total es *$5.000 ARS*. ¿Me pasás los datos para la transferencia?`
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
 }
 
@@ -21,7 +21,10 @@ export default function PhotoCard({ photo, bibNumber }: PhotoCardProps) {
   const [open, setOpen] = useState(false)
   const watermarkedUrl = getWatermarkedUrl(photo.cloudinary_public_id)
   const previewUrl = getPreviewUrl(photo.cloudinary_public_id)
-  const whatsappUrl = buildWhatsAppUrl(photo.id, bibNumber)
+  const photoName = photo.original_filename
+    ? photo.original_filename.replace(/\.[^.]+$/, '')
+    : photo.cloudinary_public_id.split('/').pop() ?? photo.id
+  const whatsappUrl = buildWhatsAppUrl(photoName, bibNumber)
 
   useEffect(() => {
     if (!open) return

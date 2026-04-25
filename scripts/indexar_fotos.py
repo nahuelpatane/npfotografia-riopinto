@@ -84,6 +84,50 @@ BIB_MAX_DIGITS = 5
 
 
 # ---------------------------------------------------------------------------
+# Manual filename helpers
+# ---------------------------------------------------------------------------
+def extract_bib_from_filename(stem: str) -> int | None:
+    """Return BIB if filename matches d<number> (case-insensitive), else None."""
+    m = re.fullmatch(r'd(\d+)', stem.strip().lower())
+    return int(m.group(1)) if m else None
+
+
+def process_manual(input_dir: Path) -> None:
+    """Index photos renamed to d<bib>.jpg — no OCR, BIB comes from the filename."""
+    images = [f for f in input_dir.iterdir() if f.suffix.lower() in SUPPORTED_EXT]
+    total = len(images)
+    if total == 0:
+        print("No se encontraron imágenes en el directorio manual.")
+        return
+
+    print(f"\nProcesando {total} foto(s) manual(es) — carrera: {RACE_NAME}\n{'─' * 52}")
+
+    indexed = 0
+    skipped = 0
+
+    for i, img in enumerate(images, 1):
+        print(f"[{i:>4}/{total}]  {img.name}", end="  ")
+        bib = extract_bib_from_filename(img.stem)
+
+        if bib is None:
+            print(f"⚠  nombre no reconocido (esperado: d<número>, ej: d55.jpg)")
+            skipped += 1
+            continue
+
+        try:
+            public_id = upload(str(img), img.stem)
+            insert_record(bib, public_id, img.name)
+            print(f"✓  dorsal {bib}  →  {public_id}")
+            indexed += 1
+        except Exception as exc:
+            print(f"✗  ERROR: {exc}")
+            skipped += 1
+
+    print(f"\n{'─' * 52}")
+    print(f"Resumen: {indexed} indexadas  |  {skipped} omitidas  |  {total} total")
+
+
+# ---------------------------------------------------------------------------
 # OCR helpers
 # ---------------------------------------------------------------------------
 def extract_bibs(reader: easyocr.Reader, image_path: str) -> list[int]:
@@ -199,17 +243,30 @@ if __name__ == "__main__":
         description="Indexa fotos de ciclismo por número de dorsal (BIB)"
     )
     parser.add_argument(
-        "--input", required=True,
-        help="Directorio con las fotos originales (ej: ./fotos_originales)"
+        "--input",
+        help="Directorio con las fotos originales para procesar con OCR (ej: ./fotos_originales)"
+    )
+    parser.add_argument(
+        "--manual",
+        help="Directorio con fotos renombradas manualmente como d<número>.jpg (ej: ./fotos_manual)"
     )
     parser.add_argument(
         "--output", default="./output",
-        help="Directorio de salida (default: ./output)"
+        help="Directorio de salida para el modo OCR (default: ./output)"
     )
     args = parser.parse_args()
 
-    input_path = Path(args.input).expanduser().resolve()
-    if not input_path.is_dir():
-        sys.exit(f"Error: el directorio de entrada no existe: {input_path}")
+    if not args.input and not args.manual:
+        sys.exit("Error: especificá --input (OCR) o --manual (nombres d<número>), o ambos.")
 
-    process(input_path, Path(args.output).expanduser().resolve())
+    if args.manual:
+        manual_path = Path(args.manual).expanduser().resolve()
+        if not manual_path.is_dir():
+            sys.exit(f"Error: el directorio manual no existe: {manual_path}")
+        process_manual(manual_path)
+
+    if args.input:
+        input_path = Path(args.input).expanduser().resolve()
+        if not input_path.is_dir():
+            sys.exit(f"Error: el directorio de entrada no existe: {input_path}")
+        process(input_path, Path(args.output).expanduser().resolve())
