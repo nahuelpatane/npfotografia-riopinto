@@ -25,21 +25,8 @@ export default function SearchBar() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
       <div className="relative flex items-center">
-        {/* Magnifier icon */}
-        <span className="absolute left-4 text-gray-500 pointer-events-none" aria-hidden="true">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
-          </svg>
+        <span className="absolute left-4 text-slate-400 pointer-events-none" aria-hidden="true">
+          <SearchIcon className="w-5 h-5" />
         </span>
 
         <input
@@ -56,9 +43,9 @@ export default function SearchBar() {
           placeholder="Número de dorsal"
           className="
             w-full pl-12 pr-4 py-4
-            bg-white/5 border border-white/10
+            bg-white/10 border border-white/15
             rounded-2xl text-white text-lg font-semibold
-            placeholder:text-gray-600
+            placeholder:text-slate-500
             focus:outline-none focus:ring-2 focus:ring-yellow-400/60 focus:border-yellow-400/40
             transition-all duration-200
             [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
@@ -80,15 +67,32 @@ export default function SearchBar() {
         type="submit"
         className="
           w-full py-4 rounded-2xl
-          bg-yellow-400 text-black font-black text-base tracking-wide
+          bg-yellow-400 text-zinc-900 font-black text-base tracking-wide
           hover:bg-yellow-300 active:scale-[0.98]
           transition-all duration-150
-          cursor-pointer
-          focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-[#0a0a0a]
+          cursor-pointer min-h-[56px]
+          focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-zinc-900
         "
       >
         Buscar fotos
       </button>
     </form>
+  )
+}
+
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
+    </svg>
   )
 }
