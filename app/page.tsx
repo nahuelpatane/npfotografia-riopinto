@@ -40,15 +40,33 @@ export default function Home() {
 
         {/* Dark gradient overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/60 via-zinc-900/75 to-zinc-900" />
-
+        <br></br>
         {/* Hero content */}
         <div className="relative z-10 flex flex-col items-center w-full">
-          {/* Live badge */}
-          <div className="mb-8 inline-flex items-center gap-2 bg-yellow-400/15 border border-yellow-400/30 rounded-full px-4 py-1.5">
-            <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
-            <span className="text-yellow-400 text-[11px] font-bold uppercase tracking-widest">
-              Desafio Rio Pinto 2026
-            </span>
+          {/* Camera viewfinder element */}
+          <div className="mb-10 flex flex-col items-center gap-4">
+            <div className="relative px-8 py-3.5">
+              {/* Viewfinder corner brackets */}
+              <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-yellow-400" />
+              <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-yellow-400" />
+              <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-yellow-400" />
+              <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-yellow-400" />
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <span className="text-red-400 text-[9px] font-mono font-bold uppercase tracking-[0.2em]">REC</span>
+                </span>
+                <span className="text-white/25 font-mono text-xs">│</span>
+                <span className="text-yellow-400 text-[11px] font-mono uppercase tracking-[0.15em]">Capturando recuerdos</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 text-[10px] font-mono text-white/35 uppercase tracking-widest">
+              <span>+5000 fotos</span>
+              <span className="text-white/15">·</span>
+              <span>5.890 dorsales</span>
+              <span className="text-white/15">·</span>
+              <span className="text-yellow-400/50">disponibles ya</span>
+            </div>
           </div>
 
           <h1 className="font-condensed text-[clamp(3.2rem,13vw,7rem)] font-extrabold uppercase tracking-tight leading-[0.9] mb-5 text-white">
@@ -137,11 +155,10 @@ export default function Home() {
             ].map(({ label, price, note, highlight }) => (
               <div
                 key={label}
-                className={`rounded-2xl border p-6 flex flex-col items-center text-center gap-1.5 transition-shadow ${
-                  highlight
-                    ? 'bg-yellow-400 border-yellow-400 shadow-lg shadow-yellow-400/20'
-                    : 'bg-white border-slate-100 shadow-sm'
-                }`}
+                className={`rounded-2xl border p-6 flex flex-col items-center text-center gap-1.5 transition-shadow ${highlight
+                  ? 'bg-yellow-400 border-yellow-400 shadow-lg shadow-yellow-400/20'
+                  : 'bg-white border-slate-100 shadow-sm'
+                  }`}
               >
                 <span className={`text-xs font-semibold uppercase tracking-widest ${highlight ? 'text-yellow-900' : 'text-slate-400'}`}>
                   {label}

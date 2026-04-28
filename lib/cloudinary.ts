@@ -2,7 +2,7 @@ const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
 const TEXT = 'NP%20Fotografia'
 
-export function getWatermarkedUrl(publicId: string, width = 800): string {
+export function getWatermarkedUrl(publicId: string, width = 600): string {
   const m = `l_text:Arial_36_bold:${TEXT},co_white,o_45`
   return [
     `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`,

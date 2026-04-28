@@ -30,7 +30,7 @@ const fetchPhotosForBib = unstable_cache(
     return { photos, hasError: false }
   },
   ['buscar-photos'],
-  { revalidate: 300, tags: ['photos'] }
+  { revalidate: 60, tags: ['photos'] }
 )
 
 interface BuscarPageProps {
