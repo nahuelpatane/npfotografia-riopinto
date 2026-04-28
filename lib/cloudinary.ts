@@ -35,3 +35,7 @@ export function getOriginalUrl(publicId: string): string {
 export function getHeroThumbnailUrl(publicId: string): string {
   return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_600,h_400,c_fill,g_auto,q_auto:low,f_webp/${publicId}`
 }
+
+export function getDownloadUrl(publicId: string): string {
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/fl_attachment,q_auto/${publicId}`
+}

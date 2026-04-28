@@ -20,3 +20,5 @@ tsconfig.tsbuildinfo
 *.tsbuildinfo
 .DS_Store
 Thumbs.db
+
+.vercel
