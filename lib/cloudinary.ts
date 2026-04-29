@@ -15,15 +15,11 @@ export function getWatermarkedUrl(publicId: string, width = 600): string {
 }
 
 export function getPreviewUrl(publicId: string): string {
-  const m = `l_text:Arial_52_bold:${TEXT},co_white,o_55`
+  const tile = `l_text:Arial_48_bold:${TEXT},co_white,o_45,a_-20,fl_tiled`
   return [
     `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`,
-    `${m},g_north_west,x_40,y_40`,
-    `${m},g_north_east,x_40,y_40`,
-    `${m},g_center`,
-    `${m},g_south_west,x_40,y_40`,
-    `${m},g_south_east,x_40,y_40`,
-    `w_1200,e_blur:500,q_auto,f_webp`,
+    tile,
+    `w_1200,e_blur:150,q_auto,f_webp`,
     publicId,
   ].join('/')
 }
@@ -37,5 +33,5 @@ export function getHeroThumbnailUrl(publicId: string): string {
 }
 
 export function getDownloadUrl(publicId: string): string {
-  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/fl_attachment,q_auto/${publicId}`
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/fl_attachment/${publicId}`
 }
