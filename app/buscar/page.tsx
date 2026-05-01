@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import PhotoGallery from '@/components/PhotoGallery'
+import NoPhotosFound from '@/components/NoPhotosFound'
 import Navbar from '@/components/Navbar'
 import type { Photo } from '@/types'
 
@@ -94,20 +95,7 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
             )}
 
             {!fetchError && photos.length === 0 && (
-              <div className="flex flex-col items-center py-24 text-center gap-4">
-                <span className="font-condensed text-8xl font-black text-slate-100 leading-none select-none uppercase">
-                  #{bibNumber}
-                </span>
-                <p className="text-slate-400 text-sm max-w-xs">
-                  Todavía no hay fotos indexadas para este dorsal. Revisá más tarde o contactanos por WhatsApp.
-                </p>
-                <Link
-                  href="/"
-                  className="mt-2 inline-flex items-center gap-2 bg-yellow-400 text-zinc-900 font-bold text-sm px-6 py-3 rounded-full hover:bg-yellow-300 transition-colors cursor-pointer min-h-[44px]"
-                >
-                  Buscar otro dorsal
-                </Link>
-              </div>
+              <NoPhotosFound bibNumber={bibNumber} />
             )}
 
             {!fetchError && photos.length > 0 && (

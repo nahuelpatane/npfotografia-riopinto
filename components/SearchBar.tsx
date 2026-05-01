@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 export default function SearchBar() {
   const [value, setValue] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   function handleSubmit(e: FormEvent) {
@@ -19,6 +20,7 @@ export default function SearchBar() {
     }
 
     setError('')
+    setLoading(true)
     router.push(`/buscar?bib=${num}`)
   }
 
@@ -41,6 +43,7 @@ export default function SearchBar() {
             if (error) setError('')
           }}
           placeholder="Número de dorsal"
+          disabled={loading}
           className="
             w-full pl-12 pr-4 py-4
             bg-white/10 border border-white/15
@@ -48,6 +51,7 @@ export default function SearchBar() {
             placeholder:text-slate-500
             focus:outline-none focus:ring-2 focus:ring-yellow-400/60 focus:border-yellow-400/40
             transition-all duration-200
+            disabled:opacity-60
             [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
           "
           aria-label="Número de dorsal"
@@ -65,18 +69,42 @@ export default function SearchBar() {
 
       <button
         type="submit"
+        disabled={loading}
         className="
           w-full py-4 rounded-2xl
           bg-yellow-400 text-zinc-900 font-black text-base tracking-wide
           hover:bg-yellow-300 active:scale-[0.98]
           transition-all duration-150
           cursor-pointer min-h-[56px]
+          disabled:cursor-not-allowed disabled:opacity-80
           focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-zinc-900
+          flex items-center justify-center gap-2
         "
       >
-        Buscar fotos
+        {loading ? (
+          <>
+            <Spinner />
+            Buscando...
+          </>
+        ) : (
+          'Buscar fotos'
+        )}
       </button>
     </form>
+  )
+}
+
+function Spinner() {
+  return (
+    <svg
+      className="w-5 h-5 animate-spin"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
   )
 }
 

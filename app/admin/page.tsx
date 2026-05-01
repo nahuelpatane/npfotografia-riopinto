@@ -12,6 +12,14 @@ interface Order {
   created_at: string
 }
 
+interface NotificationSignup {
+  id: string
+  created_at: string
+  email: string
+  bib_number: number
+  status: string
+}
+
 interface Props {
   searchParams: Promise<{ key?: string }>
 }
@@ -49,10 +57,14 @@ export default async function AdminPage({ searchParams }: Props) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const { data: orders, error } = await supabase
-    .from('orders')
-    .select('*')
-    .order('created_at', { ascending: false })
+  const [{ data: orders, error }, { data: signups, error: signupsError }] = await Promise.all([
+    supabase.from('orders').select('*').order('created_at', { ascending: false }),
+    supabase.from('notifications_signup').select('*').order('created_at', { ascending: false }),
+  ])
+
+  if (signupsError) {
+    console.error('notifications_signup select error:', signupsError.code, signupsError.message)
+  }
 
   if (error) {
     return (
@@ -63,6 +75,7 @@ export default async function AdminPage({ searchParams }: Props) {
   }
 
   const rows = (orders ?? []) as Order[]
+  const signupRows = (signups ?? []) as NotificationSignup[]
 
   const totalRevenue = rows.reduce((s, o) => s + Number(o.total_amount), 0)
   const totalPhotos = rows.reduce((s, o) => s + (o.cloudinary_ids?.length ?? 0), 0)
@@ -84,6 +97,7 @@ export default async function AdminPage({ searchParams }: Props) {
           <StatCard label="Pedidos" value={String(rows.length)} sub="pagos aprobados" />
           <StatCard label="Fotos vendidas" value={String(totalPhotos)} sub="imágenes" />
           <StatCard label="Clientes únicos" value={String(uniqueEmails || uniqueBibs)} sub={uniqueEmails ? 'emails distintos' : 'dorsales distintos'} />
+          <StatCard label="En espera de fotos" value={String(signupRows.length)} sub="emails registrados" />
         </div>
 
         {/* Orders table */}
@@ -147,6 +161,57 @@ export default async function AdminPage({ searchParams }: Props) {
             </div>
           </div>
         )}
+
+        {/* Notifications signups */}
+        <div className="mt-12">
+          <h2 className="text-lg font-bold text-zinc-900 mb-1">Notificaciones pendientes</h2>
+          <p className="text-zinc-400 text-sm mb-4">Corredores que pidieron aviso cuando sus fotos estén listas.</p>
+
+          {signupRows.length === 0 ? (
+            <p className="text-center text-zinc-400 py-10">Todavía nadie se registró.</p>
+          ) : (
+            <div className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-zinc-100 text-left">
+                      <th className="px-4 py-3 font-semibold text-zinc-500 whitespace-nowrap">Fecha</th>
+                      <th className="px-4 py-3 font-semibold text-zinc-500">Email</th>
+                      <th className="px-4 py-3 font-semibold text-zinc-500">Dorsal</th>
+                      <th className="px-4 py-3 font-semibold text-zinc-500">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {signupRows.map((s, i) => (
+                      <tr
+                        key={s.id}
+                        className={`border-b border-zinc-50 hover:bg-zinc-50 transition-colors ${i % 2 === 0 ? '' : 'bg-zinc-50/50'}`}
+                      >
+                        <td className="px-4 py-3 text-zinc-500 whitespace-nowrap">
+                          {new Date(s.created_at).toLocaleDateString('es-AR', {
+                            day: '2-digit', month: '2-digit', year: '2-digit',
+                            hour: '2-digit', minute: '2-digit',
+                          })}
+                        </td>
+                        <td className="px-4 py-3 text-zinc-800">{s.email}</td>
+                        <td className="px-4 py-3 font-medium text-zinc-800">#{s.bib_number}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                            s.status === 'notified'
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {s.status === 'notified' ? 'Avisado' : 'Pendiente'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
 
         <p className="text-center text-xs text-zinc-300 mt-8">
           /admin — solo para uso interno

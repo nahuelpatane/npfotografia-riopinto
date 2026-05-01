@@ -5,10 +5,10 @@ import Navbar from '@/components/Navbar'
 const HERO_PHOTOS = [
   '/background/01.png',
   '/background/02.png',
-  '/background/03.png',
+  '/background/03.png', // trail run
+  '/background/06.png', // trail run
   '/background/04.png',
   '/background/05.png',
-  '/background/06.png',
 ]
 
 export default function Home() {
