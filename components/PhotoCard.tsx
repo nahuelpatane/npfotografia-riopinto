@@ -19,7 +19,7 @@ async function checkoutSinglePhoto(photo: Photo, bibNumber: number) {
 }
 
 function buildWhatsAppUrl(photoName: string, bibNumber: number): string {
-  const message = `Hola! Quiero comprar la foto *${photoName}* del corredor *#${bibNumber}*. El total es *$5.000 ARS*. ¿Me pasás los datos para la transferencia?`
+  const message = `Hola! Quiero comprar la foto *${photoName}* del corredor *#${bibNumber}*. El total es *$6.000 ARS*. ¿Me pasás los datos para la transferencia?`
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
 }
 
@@ -104,8 +104,8 @@ export default function PhotoCard({ photo, bibNumber }: PhotoCardProps) {
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-400 truncate max-w-[60%]">{photo.race_name}</span>
             <div className="text-right leading-tight">
-              <span className="text-sm font-bold text-zinc-900">$5.000</span>
-              <span className="text-[10px] text-yellow-600 block">2 x $8.000</span>
+              <span className="text-sm font-bold text-zinc-900">$6.000</span>
+              <span className="text-[10px] text-yellow-600 block">2 x $10.000</span>
             </div>
           </div>
 
@@ -173,8 +173,8 @@ export default function PhotoCard({ photo, bibNumber }: PhotoCardProps) {
             {/* Modal CTAs */}
             <div className="mt-5 flex flex-col items-center gap-3 w-full max-w-sm mx-auto">
               <div className="flex items-center gap-3 text-center">
-                <span className="text-white font-bold text-lg">$5.000 ARS</span>
-                <span className="text-yellow-400 text-sm">· 2 fotos por $8.000</span>
+                <span className="text-white font-bold text-lg">$6.000 ARS</span>
+                <span className="text-yellow-400 text-sm">· 2 fotos por $10.000</span>
               </div>
 
               {/* Pagar con Mercado Pago (primary) */}

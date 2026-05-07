@@ -35,7 +35,7 @@ export default function CartDrawer() {
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  const listPrice = items.length * 5000
+  const listPrice = items.length * 6000
   const savings = listPrice - totalPrice
 
   async function handleCheckout() {
@@ -133,7 +133,7 @@ export default function CartDrawer() {
           <div className="border-t border-slate-100 px-5 pt-4 pb-6 flex flex-col gap-4">
             <div className="flex flex-col gap-2 text-sm">
               <div className="flex justify-between text-slate-500">
-                <span>{items.length} foto{items.length > 1 ? 's' : ''} × $5.000</span>
+                <span>{items.length} foto{items.length > 1 ? 's' : ''} × $6.000</span>
                 <span>${listPrice.toLocaleString('es-AR')}</span>
               </div>
               {savings > 0 && (
@@ -211,7 +211,7 @@ function CartItemRow({ item, onRemove }: { item: CartItem; onRemove: () => void 
         <p className="text-xs text-slate-400 mt-0.5">Dorsal #{item.bibNumber}</p>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <span className="text-sm font-semibold text-zinc-700">$5.000</span>
+        <span className="text-sm font-semibold text-zinc-700">$6.000</span>
         <button
           onClick={onRemove}
           className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-red-50 hover:text-red-400 text-slate-300 transition-colors cursor-pointer"

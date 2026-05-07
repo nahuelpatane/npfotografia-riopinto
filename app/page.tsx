@@ -149,9 +149,9 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { label: '1 foto', price: '$5.000', note: 'ARS', highlight: false },
-              { label: '2 fotos', price: '$8.000', note: 'ARS · ahorrás $2.000', highlight: true },
-              { label: '3+ fotos', price: '$3.500', note: 'c/u · pedí tu combo', highlight: false },
+              { label: '1 foto', price: '$6.000', note: 'ARS', highlight: false },
+              { label: '2 fotos', price: '$10.000', note: 'ARS · ahorrás $2.000', highlight: true },
+              { label: '3+ fotos', price: '$4.000', note: 'c/u desde la 3ª', highlight: false },
             ].map(({ label, price, note, highlight }) => (
               <div
                 key={label}

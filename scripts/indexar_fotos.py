@@ -26,6 +26,7 @@ import re
 import sys
 import shutil
 import argparse
+import tempfile
 import threading
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -57,7 +58,7 @@ _load_dotenv(Path(__file__).parent / '.env')
 # Lazy imports (only after env is loaded)
 # ---------------------------------------------------------------------------
 import numpy as np
-from PIL import Image as PILImage
+from PIL import Image as PILImage, ImageOps, ImageEnhance
 
 import easyocr
 import cloudinary
@@ -87,6 +88,7 @@ supabase = create_client(
 RACE_NAME         = os.environ.get("RACE_NAME", "Carrera")
 CLOUDINARY_FOLDER = os.environ.get("CLOUDINARY_FOLDER", "npfotografia")
 SUPPORTED_EXT     = {".jpg", ".jpeg", ".png", ".webp"}
+_rotate_mode      = "auto"  # se sobreescribe desde args
 
 BIB_MIN_DIGITS = 2
 BIB_MAX_DIGITS = 5
@@ -108,15 +110,52 @@ def _log(msg: str) -> None:
         print(f"[{_done_count:>4}/{_total}]  {msg}", flush=True)
 
 # ---------------------------------------------------------------------------
+# Orientación
+# ---------------------------------------------------------------------------
+def detect_cw_rotation(img: PILImage.Image) -> int:
+    """
+    Heurístico de luminancia: en fotos exteriores bien orientadas el cielo
+    (zona más clara) queda arriba. Prueba 4 rotaciones y devuelve los grados
+    de rotación horaria necesarios para corregir la imagen.
+    """
+    gray = np.array(img.convert('L'), dtype=np.float32)
+    h = gray.shape[0]
+    quarter = max(h // 4, 1)
+    best_rot, best_score = 0, -1.0
+    for rot in [0, 90, 180, 270]:
+        arr = np.rot90(gray, k=rot // 90)
+        score = float(arr[:quarter, :].mean())
+        if score > best_score:
+            best_score = score
+            best_rot = rot
+    return best_rot
+
+def rotate_pil(img: PILImage.Image, cw_degrees: int) -> PILImage.Image:
+    if cw_degrees == 0:
+        return img
+    return img.rotate(-cw_degrees, expand=True)
+
+# ---------------------------------------------------------------------------
 # Image helpers
 # ---------------------------------------------------------------------------
 def load_resized_for_ocr(image_path: str, max_width: int) -> np.ndarray:
-    """Load image and downscale to max_width before OCR — much faster inference."""
-    img = PILImage.open(image_path).convert('RGB')
+    """Load image, detect & correct orientation, enhance contrast/sharpness, downscale for OCR."""
+    img = PILImage.open(image_path)
+    img = ImageOps.exif_transpose(img)
+    img = img.convert('RGB')
+
+    if _rotate_mode == 'auto':
+        degrees = detect_cw_rotation(img)
+    else:
+        degrees = int(_rotate_mode)
+    img = rotate_pil(img, degrees)
+
     w, h = img.size
     if w > max_width:
         ratio = max_width / w
         img = img.resize((max_width, int(h * ratio)), PILImage.LANCZOS)
+    img = ImageEnhance.Contrast(img).enhance(1.8)
+    img = ImageEnhance.Sharpness(img).enhance(2.0)
     return np.array(img)
 
 # ---------------------------------------------------------------------------
@@ -126,14 +165,14 @@ def extract_bibs(reader: easyocr.Reader, image: "np.ndarray | str") -> list[int]
     """Return unique BIB candidates. image can be a numpy array or file path."""
     try:
         with _ocr_lock:
-            results = reader.readtext(image, detail=1)
+            results = reader.readtext(image, detail=1, allowlist='0123456789')
     except Exception as e:
         print(f"  OCR error: {e}")
         return []
 
     bibs: set[int] = set()
     for (_, text, confidence) in results:
-        if confidence < 0.45:
+        if confidence < 0.03:
             continue
         digits = re.sub(r"\D", "", text.strip())
         if BIB_MIN_DIGITS <= len(digits) <= BIB_MAX_DIGITS:
@@ -144,17 +183,35 @@ def extract_bibs(reader: easyocr.Reader, image: "np.ndarray | str") -> list[int]
 # Cloudinary & Supabase helpers
 # ---------------------------------------------------------------------------
 def upload(image_path: str, stem: str) -> str:
-    """Upload to Cloudinary and return the public_id."""
+    """Rotate image if needed, upload to Cloudinary, return public_id."""
     public_id = f"{CLOUDINARY_FOLDER}/{stem}"
-    result = cloudinary.uploader.upload(
-        image_path,
-        public_id=public_id,
-        overwrite=True,
-        resource_type="image",
-        quality="auto",
-        fetch_format="auto",
-    )
-    return result["public_id"]
+
+    img = PILImage.open(image_path)
+    img = ImageOps.exif_transpose(img)
+    img = img.convert('RGB')
+
+    if _rotate_mode == 'auto':
+        degrees = detect_cw_rotation(img)
+    else:
+        degrees = int(_rotate_mode)
+    img = rotate_pil(img, degrees)
+
+    tmp = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False)
+    try:
+        img.save(tmp.name, 'JPEG', quality=95, subsampling=0)
+        tmp.close()
+        result = cloudinary.uploader.upload(
+            tmp.name,
+            public_id=public_id,
+            overwrite=True,
+            resource_type="image",
+            quality="auto",
+            fetch_format="auto",
+        )
+        return result["public_id"]
+    finally:
+        if os.path.exists(tmp.name):
+            os.unlink(tmp.name)
 
 def batch_upsert(records: list[dict]) -> None:
     """Insert all records in a single HTTP call — much faster than one-by-one."""
@@ -333,11 +390,18 @@ if __name__ == "__main__":
         help=f"Hilos paralelos para OCR+upload (default: {default_workers}, recomendado: 2-6)"
     )
     parser.add_argument(
-        "--ocr-width", type=int, default=1200,
-        help="Ancho máximo en px para redimensionar antes del OCR (default: 1200). "
+        "--ocr-width", type=int, default=2000,
+        help="Ancho máximo en px para redimensionar antes del OCR (default: 2000). "
              "Valores más bajos = más rápido pero menos preciso. Mínimo recomendado: 800."
     )
+    parser.add_argument(
+        "--rotate", default="auto",
+        help="Rotación: 'auto' (detecta por luminancia) o grados fijos: 0, 90, 180, 270 (default: auto)"
+    )
     args = parser.parse_args()
+
+    global _rotate_mode
+    _rotate_mode = args.rotate
 
     if not args.input and not args.manual:
         sys.exit("Error: especificá --input (OCR) o --manual (nombres d<número>), o ambos.")
